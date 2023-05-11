@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 import os 
 load_dotenv()
 
-# API = os.getenv("API")
-# URL = os.getenv("URL")
+API = os.getenv("API")
+URL = os.getenv("URL")
 
-def sendImageFile():
+def sendImageFile(img):
     url = URL + "/sendInteractiveButtonsMessage?whatsappNumber=918355882259"
 
     payload = {
@@ -15,13 +15,13 @@ def sendImageFile():
         "header": {
             "media": {
                 "fileName": "Image",
-                "url": "https://images.pexels.com/photos/617278/pexels-photo-617278.jpeg?auto=compress&cs=tinysrgb&w=600"
+                "url": img
             },
-            "text": "sdf",
+            "text": "Are You Sure",
             "type": "Image"
         },
-        "body": "Cat Image",
-        "footer": "from google"
+        "body": "Are You sure you want to send this image?",
+        "footer": ""
     }
     headers = {
         "content-type": "text/json",
@@ -30,5 +30,6 @@ def sendImageFile():
 
     response = requests.post(url, json=payload, headers=headers)
 
-    print(response.text)
+    # print(response.text)
+    return "done"
 

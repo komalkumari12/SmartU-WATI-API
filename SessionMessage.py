@@ -21,4 +21,5 @@ def sendSessionMessage(msg):
 
     response = requests.post(url, headers=headers, data=payload, files=files)
     res = response.json()
+
     return res['message']['text']
