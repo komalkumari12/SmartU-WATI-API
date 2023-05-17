@@ -11,7 +11,7 @@ def sendImageFile(img):
     url = URL + "/sendInteractiveButtonsMessage?whatsappNumber=918355882259"
 
     payload = {
-        "buttons": [{"text": "sdfsdfsdf"}],
+        "buttons": [{"text": "Yes"},{"text":"No"}],
         "header": {
             "media": {
                 "fileName": "Image",
@@ -27,9 +27,8 @@ def sendImageFile(img):
         "content-type": "text/json",
         "Authorization": API
     }
-
+    
     response = requests.post(url, json=payload, headers=headers)
-
-    # print(response.text)
+    
     return "done"
 

@@ -2,35 +2,50 @@ import flask
 import requests
 import json
 from flask import Flask,request
+from flask import jsonify
+from flask_cors import CORS, cross_origin
 from SessionMessage import sendSessionMessage
 from SendImageFile import sendImageFile
 import mongoDB
+from downloadImage import downloadImage
+
+
 
 from dotenv import load_dotenv
 import os 
 load_dotenv()
 port = os.getenv("PORT")
 
+# from dotenv import dotenv_values
+# import os 
+# config = dotenv_values(".env")
+
 from dotenv import load_dotenv
 import os 
 load_dotenv()
 app = Flask(__name__)
 
+CORS(app)
 
-textSentByUser = ""
+# @app.route("/upload", methods=['POST'])
+# @cross_origin()
 
-@app.route('/')
-def DefaultRoute():
-    return "Home Page"
+
+
+
+# @app.route('/')
+# def DefaultRoute():
+#     return "Home Page"
 
 @app.route('/sendMessage',methods=["GET", "POST"])
 def functionCall():
     data = request.json
-    print(data)
+    print(data['data'])
     textSentByUser = data['text']
     phoneNumber = data['waId']
 
     if(data['type']=='text'):
+        print('  User sent a text  ')
         response = mongoDB.db.questions.find_one({"Q":textSentByUser})
 
         if(textSentByUser=='Hi'):
@@ -47,10 +62,28 @@ def functionCall():
                 sendSessionMessage("Thankyou for your Time")    
        
     if(data['type']=='image'):
-        return sendImageFile('https://live-server-101955.wati.io/api/file/showFile?fileName=data/images/5303e57b-bbe6-455e-8d1c-04e9e4ed9912.jpg')
+        imgUrl = downloadImage(data['data'])
+        return sendImageFile(imgUrl)
+
+# @app.route("/upload", methods=['POST'], endpoint='upload')
+# def upload_file():
+#   app.logger.info('in upload route')
+#   data = request.json
+#   print(data['type'])
+
+#   cloudinary.config(cloud_name = os.getenv('CLOUD_NAME'), api_key=os.getenv('API_KEY'), 
+#     api_secret=os.getenv('API_SECRET'))
+#   upload_result = None
+#   if request.method == 'POST':
+#     file_to_upload = request.files['file']
+#     app.logger.info('%s file_to_upload', file_to_upload)
+#     if file_to_upload:
+#       upload_result = cloudinary.uploader.upload(file_to_upload)
+#       app.logger.info(upload_result)
+#       return jsonify(upload_result)
 
 
-@app.route('/add-question', methods=['POST'])
+@app.route('/add-question', methods=['POST'], endpoint='add_question')
 def add_question():
     try:
         data = request.json
