@@ -43,6 +43,7 @@ def functionCall():
     if(data['type']=='text'):
         print('  User sent a text  ')
         response = mongoDB.db.questions.find_one({"Q":textSentByUser})
+        # print(response)
 
         print(textSentByUser)
 
@@ -50,18 +51,23 @@ def functionCall():
             question = mongoDB.db.questions.find_one({"no":"1"})
             print(question['question'])
             sendSessionMessage(question['question'])
-            mongoDB.db.user.update_one({"phoneNumber":phoneNumber,"already":0,"next":1},{"$inc":{"already":1,"next":1}},upsert=True)
+            mongoDB.db.user.update_one({"phoneNumber":phoneNumber,"already":0,"next":1},{"$inc":{"already":1,"next":1},"$push":{"questions":{"Q":question,"A":textSentByUser}}},upsert=True)
+            # mongoDB.db.user.update_one({"phoneNumber":phoneNumber,"already":0,"next":1},{"$inc":{"already":1,"next":1}},upsert=True)
         else:
             nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':phoneNumber})['next']
-            if(nextQuestion<4):
+            print(nextQuestion)
+            if(nextQuestion<=4):
                 question = mongoDB.db.questions.find_one({"no":str(nextQuestion)})['question']
+                print(question)
+                prevQuestion = mongoDB. db.questions.find_one({"no" : str(nextQuestion-1)})['question']
                 sendSessionMessage(question)
-                mongoDB.db.user.update_one({"phoneNumber":phoneNumber},{"$inc":{"already":1,"next":1},"$push":{"questions":{"Q":question,"A":textSentByUser}}},upsert=True)
+                mongoDB.db.user.update_one({"phoneNumber":phoneNumber},{"$inc":{"already":1,"next":1},"$push":{"questions":{"Q":prevQuestion,"A":textSentByUser}}},upsert=True)
             else:
-                sendSessionMessage("Thankyou for your Time")    
+                sendSessionMessage("Thankyou for your Time")   
+        
        
     if(data['type']=='image'):
-        print('User Sent an Image')
+        print('  User Sent an Image  ')
 
         imgUrl = downloadImage(data['data'])
         store_image(phoneNumber , "./sample.jpg")
