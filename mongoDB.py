@@ -2,7 +2,7 @@
 
 from flask import Flask
 from flask_pymongo import pymongo
-from app import app
+# from app import app
 
 from dotenv import dotenv_values
 import os 

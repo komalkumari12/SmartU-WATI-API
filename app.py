@@ -7,8 +7,9 @@ from flask_cors import CORS, cross_origin
 from SessionMessage import sendSessionMessage
 from SendImageFile import sendImageFile
 import mongoDB
+from readImage import read_image
+from storeImage import store_image
 from downloadImage import downloadImage
-
 
 
 from dotenv import load_dotenv
@@ -27,15 +28,10 @@ app = Flask(__name__)
 
 CORS(app)
 
-# @app.route("/upload", methods=['POST'])
-# @cross_origin()
 
-
-
-
-# @app.route('/')
-# def DefaultRoute():
-#     return "Home Page"
+@app.route('/')
+def DefaultRoute():
+    return "Home Page"
 
 @app.route('/sendMessage',methods=["GET", "POST"])
 def functionCall():
@@ -48,10 +44,13 @@ def functionCall():
         print('  User sent a text  ')
         response = mongoDB.db.questions.find_one({"Q":textSentByUser})
 
+        print(textSentByUser)
+
         if(textSentByUser=='Hi'):
             question = mongoDB.db.questions.find_one({"no":"1"})
+            print(question['question'])
             sendSessionMessage(question['question'])
-            mongoDB.db.user.update_one({"phoneNumber":phoneNumber,"state":"","country":"","already":0,"next":1},{"$inc":{"already":1,"next":1}},upsert=True)
+            mongoDB.db.user.update_one({"phoneNumber":phoneNumber,"already":0,"next":1},{"$inc":{"already":1,"next":1}},upsert=True)
         else:
             nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':phoneNumber})['next']
             if(nextQuestion<4):
@@ -62,26 +61,17 @@ def functionCall():
                 sendSessionMessage("Thankyou for your Time")    
        
     if(data['type']=='image'):
+        print('User Sent an Image')
+
         imgUrl = downloadImage(data['data'])
-        return sendImageFile(imgUrl)
+        store_image(phoneNumber , "./sample.jpg")
+        # storedImage = retrieve_image()
+        # print(storedImage)
 
-# @app.route("/upload", methods=['POST'], endpoint='upload')
-# def upload_file():
-#   app.logger.info('in upload route')
-#   data = request.json
-#   print(data['type'])
+        sendImageFile(imgUrl, data)
+        return "ok"
 
-#   cloudinary.config(cloud_name = os.getenv('CLOUD_NAME'), api_key=os.getenv('API_KEY'), 
-#     api_secret=os.getenv('API_SECRET'))
-#   upload_result = None
-#   if request.method == 'POST':
-#     file_to_upload = request.files['file']
-#     app.logger.info('%s file_to_upload', file_to_upload)
-#     if file_to_upload:
-#       upload_result = cloudinary.uploader.upload(file_to_upload)
-#       app.logger.info(upload_result)
-#       return jsonify(upload_result)
-
+    return "Okkk"
 
 @app.route('/add-question', methods=['POST'], endpoint='add_question')
 def add_question():
@@ -98,12 +88,6 @@ def add_question():
     except Exception as e:
         return {'error': str(e)}
 
-
-# @app.route("/test")
-# def test():
-#     print("hello komal")
-#     mongoDB.db.collection.insert_one({"name00" : "komal"})
-#     return "Connected to the data base!"
 
 if __name__ == '__main__':  
     app.run(debug=True, port=port)
