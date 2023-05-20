@@ -13,6 +13,10 @@ from downloadImage import downloadImage
 from content import content
 from HindiContent import HindiContent1
 from HindiContent import HindiContent2
+from EnglishContent import EnglishContent1
+from EnglishContent import EnglishContent2
+from MarathiContent import MarathiContent1
+from MarathiContent import MarathiContent2
 
 
 from dotenv import load_dotenv
@@ -43,80 +47,41 @@ def DefaultRoute():
 def functionCall():
     data = request.json
     # print(data)
+    print(data['type'])
 
     textByUser = data['text']
     phoneNumber = data['waId']
     senderName = data['senderName']
     language = ""
 
-    if(textByUser == 'Hi'):
-        langQuestion = 'What is your preferred Language ??'
-        sendSessionMessage(langQuestion)
+    if(data['type'] == 'text'):
 
-    elif(textByUser == 'English'):
-        mongoDB.db.user.insert_one({"phoneNumber":918355882259, "senderName": senderName,"language": textByUser,"already":0,"next":1}) 
+        if(textByUser == 'Hi'):
+            langQuestion = 'What is your preferred Language ??'
+            sendSessionMessage(langQuestion)
 
-        language = mongoDB.db.user.find_one({"phoneNumber" : 918355882259, "senderName": senderName,"language": textByUser,})['language']
-        print(language)
+        elif(textByUser == 'English'):
+            EnglishContent1(textByUser, senderName)
 
-        nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
-        print(nextQuestion)
-        question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
-        print(question)
-        sendSessionMessage(question)
-        mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questionsAsked":{"Q":question,"A":textByUser}}},upsert=True)
+        elif(textByUser == 'Hindi'):
+            HindiContent1(textByUser, senderName)
 
-    elif(textByUser == 'Hindi'):
-        HindiContent1(textByUser, senderName)
-
-    elif(textByUser == 'Marathi'):
-        mongoDB.db.user.insert_one({"phoneNumber":918355882259, "senderName": senderName,"language": textByUser,"already":0,"next":1}) 
-
-        language = mongoDB.db.user.find_one({"phoneNumber" : 918355882259, "senderName": senderName,"language": textByUser,})['language']
-        print(language)
-
-        nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
-        print(nextQuestion)
-        question = mongoDB.db2.Marathi.find_one({"no":str(nextQuestion)})['question']
-        print(question)
-        sendSessionMessage(question)
-        mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questionsAsked":{"Q":question,"A":textByUser}}},upsert=True)        
+        elif(textByUser == 'Marathi'):
+            MarathiContent1(textByUser, senderName)        
         
-    else:
-        print('Heyyy')
-        language = mongoDB.db.user.find_one({"phoneNumber" : 918355882259})['language']
-        print(language)
+        else:
+            print('Heyyy')
+            language = mongoDB.db.user.find_one({"phoneNumber" : 918355882259})['language']
+            print(language)
 
-        if(language == 'English'):
-            print(textByUser)  
-            print('In last block')
-            nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
+            if(language == 'English'):
+                EnglishContent2(textByUser)
 
-            if(nextQuestion<=4):
-                question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
-                prevQuestion = mongoDB. db2.English.find_one({"no" : str(nextQuestion-1)})['question']
+            elif(language == 'Hindi'):
+                    HindiContent2(textByUser)
 
-                sendSessionMessage(question)
-                mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questionsAsked":{"Q":prevQuestion,"A":textByUser}}},upsert=True)
-            else : 
-                sendSessionMessage("All Questions are completed !!")
-
-        elif(language == 'Hindi'):
-            HindiContent2(textByUser)
-
-        elif(language == 'Marathi'):
-            print(textByUser)  
-            print('In last block')
-            nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
-
-            if(nextQuestion<=4):
-                question = mongoDB.db2.Marathi.find_one({"no":str(nextQuestion)})['question']
-                prevQuestion = mongoDB. db2.Marathi.find_one({"no" : str(nextQuestion-1)})['question']
-
-                sendSessionMessage(question)
-                mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questionsAsked":{"Q":prevQuestion,"A":textByUser}}},upsert=True)
-            else : 
-                sendSessionMessage("Thankyou For Your Time !!")
+            elif(language == 'Marathi'):
+                MarathiContent2(textByUser)
 
         
 
@@ -125,7 +90,15 @@ def functionCall():
         # question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
         # print(question)
 
-        
+    if(data['type']=='image'):
+        print('  User Sent an Image  ')
+
+        imgUrl = downloadImage(data['data'])
+        image_url_MongoDB = store_image(phoneNumber , "./sample.jpg")
+        print(image_url_MongoDB)
+        sendImageFile(imgUrl)
+
+        return "ok"    
 
     # if(data['type']=='text'):
     #     print('  User sent a text  ')
