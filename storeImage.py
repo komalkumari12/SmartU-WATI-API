@@ -1,6 +1,5 @@
 import mongoDB
 import base64
-from readImage import read_image
 
 # Read the image file as binary data
 def store_image(phoneNumber, image_path):
@@ -12,7 +11,7 @@ def store_image(phoneNumber, image_path):
     # print(base64_image)
 
     # Insert the document with the Base64-encoded image string
-    mongoDB.db.user.update_one({'phoneNumber': phoneNumber},{"$push": {"image": base64_image}})
+    mongoDB.db.user.update_one({'phoneNumber': 918355882259},{"$push": {"image": base64_image}}, upsert = True)
 
     # Find the document with the Base64-encoded image string
     mongoDB.db.user.find({"image": base64_image})
