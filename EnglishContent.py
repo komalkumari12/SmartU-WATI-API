@@ -1,4 +1,5 @@
 import mongoDB
+from validate_Input import validate_string_input
 from SessionMessage import sendSessionMessage
 
 def EnglishContent1(textByUser, senderName):
@@ -28,18 +29,17 @@ def EnglishContent2(textByUser):
         print("question : "+ question)
         prevQuestion = mongoDB. db2.English.find_one({"no" : str(nextQuestion-1)})['question']
         print("prevQuestion : " + prevQuestion)
-        dataType = mongoDB.db2.English.find_one({"no":str(prevQuestion)})['dataType']
+        dataType = mongoDB.db2.English.find_one({"no":str(nextQuestion-1)})['dataType']
         print(dataType)
 
-        sendSessionMessage(question)
-        mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questionsAsked":{"Q":prevQuestion,"A":textByUser}}},upsert=True)
-        # if(dataType == 'String'):
-        #     print('Required data type is String')
-        #     print(type(textByUser) == str)
-        #     if(type(textByUser) == str):
-        #         print('Required Data Type matched as string')
-        #         mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questionsAsked":{"Q":nextQuestion,"A":textByUser}}},upsert=True)
-        #     else :
-        #         print("You should enter a string")
+
+        if(dataType == 'String'):
+            print('Input should be a String : ')
+            if validate_string_input(textByUser):
+                print('Input is String')
+                mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questionsAsked":{"Q":prevQuestion,"A":textByUser}}},upsert=True)
+                sendSessionMessage(question)
+            else: 
+                sendSessionMessage("Input format is not correct, Give a string as answer!!")
     else : 
         sendSessionMessage("All Questions are completed !!")

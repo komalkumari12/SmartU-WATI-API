@@ -1,4 +1,5 @@
 import mongoDB
+from validate_Input import validate_string_input
 from SessionMessage import sendSessionMessage
 
 def HindiContent1(textByUser, senderName):
@@ -23,8 +24,16 @@ def HindiContent2(textByUser):
     if(nextQuestion<=4):
         question = mongoDB.db2.Hindi.find_one({"no":str(nextQuestion)})['question']
         prevQuestion = mongoDB. db2.Hindi.find_one({"no" : str(nextQuestion-1)})['question']
+        dataType = mongoDB.db2.Hindi.find_one({"no":str(nextQuestion-1)})['dataType']
+        print(dataType)
 
-        sendSessionMessage(question)
-        mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questionsAsked":{"Q":prevQuestion,"A":textByUser}}},upsert=True)
+        if(dataType == 'String'):
+            print('Input should be a String : ')
+            if validate_string_input(textByUser):
+                print('Input is String')
+                mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questionsAsked":{"Q":prevQuestion,"A":textByUser}}},upsert=True)
+                sendSessionMessage(question)
+            else: 
+                sendSessionMessage("Input format is not correct, Give a string as answer!!")
     else : 
         sendSessionMessage("Thankyou For Your Time !!")
