@@ -6,16 +6,17 @@ from flask import jsonify
 from flask_cors import CORS, cross_origin
 from SessionMessage import sendSessionMessage
 from SendImageFile import sendImageFile
+from sendInteractiveButton import sendInteractiveButtonMessage
 import mongoDB
 from storeImage import store_image
 from downloadImage import downloadImage
-from content import content
 from HindiContent import HindiContent1
 from HindiContent import HindiContent2
 from EnglishContent import EnglishContent1
 from EnglishContent import EnglishContent2
 from MarathiContent import MarathiContent1
 from MarathiContent import MarathiContent2
+from cropList import cropList
 
 
 from dotenv import load_dotenv
@@ -43,12 +44,14 @@ def DefaultRoute():
 def functionCall():
     data = request.json
     # print(data)
-    print(data['type'])
+    # print(data['type'])
 
     textByUser = data['text']
     phoneNumber = data['waId']
     senderName = data['senderName']
     language = ""
+
+    user_response = ""
 
     # if textByUser.isnumeric():
     #     print("Input is a number : " + textByUser)
@@ -57,7 +60,10 @@ def functionCall():
 
         if(textByUser == 'Hi'):
             langQuestion = 'What is your preferred Language ??'
-            sendSessionMessage(langQuestion)
+            # sendSessionMessage(langQuestion)
+            user_response = sendInteractiveButtonMessage()
+            print("User Response : " + user_response)
+            print("TextByUser : " + textByUser)
 
         elif(textByUser == 'English'):
             print('Content 1 of English is called')
@@ -94,79 +100,25 @@ def functionCall():
         sendImageFile(imgUrl)
 
         return "ok"    
+    return "Ok" 
 
-    # if(data['type']=='text'):
-    #     print('  User sent a text  ')
-    #     response = mongoDB.db.questions.find_one({"Q":textByUser})
-    #     # print(response)
+# @app.route('/sendMessage',methods=["GET", "POST"])
+# def functionCall():
+#     data = request.json
+#     print(data)
+#     print(data['type'])
 
-    #     print(textByUser)
+#     textByUser = data['text']
+#     phoneNumber = data['waId']
+#     senderName = data['senderName']
+#     language = ""
 
-    #     if(textByUser=='Hi'):
-    #         # question = mongoDB.db.questions.find_one({"no":"1"})
-    #         # print(question['question'])
-    #         # sendSessionMessage(question['question'])
-    #         question = "Hii, What is your preferred language ??"
-    #         sendSessionMessage(question)
-    #         mongoDB.db.user.update_one({"phoneNumber":phoneNumber, "language":textByUser,"already":0,"next":1},{"$inc":{"already":1,"next":1},"$push":{"questions":{"Q":question,"A":textByUser}}},upsert=True) 
-    #     else:
-
-    #         nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':phoneNumber})['next']
-            # print(nextQuestion)
-            # if(nextQuestion<=4):
-            #     question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
-            #     prevQuestion = mongoDB. db2.English.find_one({"no" : str(nextQuestion-1)})['question']
-            #     sendSessionMessage(question)
-            #     mongoDB.db.user.update_one({"phoneNumber":phoneNumber},{"$inc":{"already":1,"next":1},"$push":{"questions":{"Q":prevQuestion,"A":textByUser}}},upsert=True)
-            # else:
-    #             sendSessionMessage("Thankyou for your Time")   
-
-    #     return "okkk" 
-
-
-
-    # if(textByUser=='Hi'):
-    #     sendSessionMessage('Hi, What is your preferred Language')
-    # else:
-
-    #     if(textByUser == 'English' or textByUser == 'Hindi' or textByUser == 'Marathi'):
-    #         mongoDB.db.user.insert_one({"phoneNumber":918355882259, "senderName": senderName,"language": textByUser,"already":0,"next":1}) 
-    #         contentCollection = content(textByUser)
-
-    #         # doing just for english users now
-    #         question = mongoDB.db2.English.find_one({"no":"1"})
-    #         print(question['question'])
-    #         print('First Question now')
-    #         sendSessionMessage(question['question'])
-    #         mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questions":{"Q":question,"A":textByUser}}},upsert=True )
-
-        # language = mongoDB.db.user.find_one({"phoneNumber" : 918355882259})['language']
-        # if(language == 'English'): 
-        #     print('answer now')
-            
-            
-        #     nextQuestion = mongoDB.db2['English'].find_one({'phoneNumber':918355882259})['next']
-        #     question = mongoDB.db.questions.find_one({"no":str(nextQuestion)})['question']
-        #     print(question['question'])
-        #     mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"questions":{"Q":question,"A":textByUser}}},upsert=True )
-        #     sendSessionMessage(question['question'])
-      
-
-
-        # question = mongoDB.db2.English.find_one({"no":"1"})
-        # print(question['question'])    
-
-        # question = mongoDB.db.contentTable.find_one({"no":"1"})
-        # print(contentTable['question'])
-        # sendSessionMessage(contentTable['question'])  
-        # mongoDB.db.user.update_one({"phoneNumber":phoneNumber, "language":"","already":0,"next":1},{"$inc":{"already":1,"next":1},"$push":{"questions":{"Q":question,"A":textByUser}}},upsert=True )     
-
-        # if(language == 'English'):
-        #     print('Ask questions based on English content Collection')
-
-
-    return "Ok"
-
+#     if(textByUser == 'Hi' or textByUser == 'Hii' or textByUser == 'Hello' or textByUser == 'Hey'):
+#         welcomeMessage = 'Hi, Welcome to Krishi Clinic'
+#         sendSessionMessage(welcomeMessage)
+#         user_response =  cropList()
+#         print(user_response)
+#     return "ok"    
 
 @app.route('/add-question', methods=['POST'], endpoint='add_question')
 def add_question():
