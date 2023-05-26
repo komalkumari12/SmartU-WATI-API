@@ -18,6 +18,7 @@ def sendSessionMessage(msg):
         'Cookie': 'affinity=1682571857.622.180934.72523|1656e65dbd355baa29fd80797f5ba486'
     }
     
+    print('In SessionMessage API')
 
     response = requests.post(url, headers=headers, data=payload, files=files)
     res = response.json()

@@ -17,6 +17,8 @@ from EnglishContent import EnglishContent2
 from MarathiContent import MarathiContent1
 from MarathiContent import MarathiContent2
 from cropList import cropList
+from LanguagePreference import languagePreference
+from validate_Input import validate_string_input
 
 
 from dotenv import load_dotenv
@@ -40,85 +42,108 @@ CORS(app)
 def DefaultRoute():
     return "Home Page"
 
+def makeOtherOptionTrue(isOtherOption):
+    isOtherOption = True
+
 @app.route('/sendMessage',methods=["GET", "POST"])
 def functionCall():
     data = request.json
     # print(data)
     # print(data['type'])
-
+    # print(data)
     textByUser = data['text']
     phoneNumber = data['waId']
     senderName = data['senderName']
-    language = ""
 
-    user_response = ""
 
-    # if textByUser.isnumeric():
-    #     print("Input is a number : " + textByUser)
+    if(textByUser == 'Hi' or textByUser == 'Hii' or textByUser == 'Hello' or textByUser == 'Hey'):
+        welcomeMessage = 'Hi, Welcome to Krishi Clinic'
+        sendSessionMessage(welcomeMessage)
+        cropList()
+        print("text By User : "  + textByUser)
 
-    if(data['type'] == 'text'):
+    else:   
+        print('HEllo00')
+        # print(textByUser)
+        if textByUser is None:
+            print('USer response now : ')
+            user_response = data['listReply']['title']
+            print(user_response)
 
-        if(textByUser == 'Hi'):
-            langQuestion = 'What is your preferred Language ??'
-            # sendSessionMessage(langQuestion)
-            user_response = sendInteractiveButtonMessage()
-            print("User Response : " + user_response)
-            print("TextByUser : " + textByUser)
+            if(user_response != 'Other'):
+                print('User Input is a Crop')
+                mongoDB.db.user.insert_one({"phoneNumber":918355882259, "senderName": senderName,"already":1,"next":2, "Crop Name": user_response})
 
-        elif(textByUser == 'English'):
-            print('Content 1 of English is called')
-            EnglishContent1(textByUser, senderName)
+                nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
+                print(nextQuestion)
 
-        elif(textByUser == 'Hindi'):
-            print('Content 1 of Hindi is called')
-            HindiContent1(textByUser, senderName)
-
-        elif(textByUser == 'Marathi'):
-            print('Content 1 of Marathi is called')
-            MarathiContent1(textByUser, senderName)        
+                question = mongoDB.db2.questions.find_one({"no":str(nextQuestion)})['question']
+                print(question)
+                sendSessionMessage(question)
         
-        else:
-            print('Content 2 of  preferred language is called')
-            language = mongoDB.db.user.find_one({"phoneNumber" : 918355882259})['language']
-            print(language)
+            elif(user_response == 'Other'):
+                print('User selected Other Option')
+                # Ask an Open ended Question
+                mongoDB.db.user.insert_one({"phoneNumber":918355882259, "senderName": senderName,"already":0,"next":1, "Crop Name": user_response})
+                # openEndedQuestion = 'Write a crop you want to select'
+                # sendSessionMessage(openEndedQuestion)
+                # print(textByUser)
 
-            if(language == 'English'):
-                EnglishContent2(textByUser)
+                nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
+                print(nextQuestion)
 
-            elif(language == 'Hindi'):
-                    HindiContent2(textByUser)
+                question = mongoDB.db2.questions.find_one({"no":str(nextQuestion)})['question']
+                print(question)
+                sendSessionMessage(question)
 
-            elif(language == 'Marathi'):
-                MarathiContent2(textByUser)
+        else :
+            print("In the else block")
+            print(textByUser)
 
-    if(data['type']=='image'):
-        print('  User Sent an Image  ')
+            cropName= mongoDB.db['user'].find_one({'phoneNumber':918355882259})['Crop Name']
+            print(cropName)
+            nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
+            print(nextQuestion)
 
-        imgUrl = downloadImage(data['data'])
-        image_url_MongoDB = store_image(918355882259 , "./sample.jpg")
-        # print(image_url_MongoDB)
-        sendImageFile(imgUrl)
+            # if cropName == 'Other' and nextQuestion == 1:
+            #     print("Crop is stored")
+                
+            if(nextQuestion < 5):
+                print("Inside nextQuestion if Statement")
+                question = mongoDB.db2.questions.find_one({"no":str(nextQuestion)})['question']
+                print(question)
+                dataType = mongoDB.db2.questions.find_one({"no":str(nextQuestion)})['dataType']
+                print(dataType)
 
-        return "ok"    
-    return "Ok" 
+                if nextQuestion == 3 and (textByUser == 'English' or textByUser == 'Hindi' or textByUser == 'Marathi'):
+                    print('Store language in DB')
+                    print('language input by user  : '  + textByUser)
+                    # Store Language in DB
+                    mongoDB.db.user.update_one({"phoneNumber": 918355882259},{"$inc": {"already": 1, "next": 1},"$set": {"language": textByUser}},upsert=True)
 
-# @app.route('/sendMessage',methods=["GET", "POST"])
-# def functionCall():
-#     data = request.json
-#     print(data)
-#     print(data['type'])
+                else :
+                # Store Response By User
+                    mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
+                    print('Answer sent by USer : ' + textByUser)
 
-#     textByUser = data['text']
-#     phoneNumber = data['waId']
-#     senderName = data['senderName']
-#     language = ""
+                # Asking Next Question
+                nextQuestion += 1
+                if(nextQuestion == 3):
+                    print('Ask User for his language preference')
+                    language = languagePreference()
+                    print(language)
 
-#     if(textByUser == 'Hi' or textByUser == 'Hii' or textByUser == 'Hello' or textByUser == 'Hey'):
-#         welcomeMessage = 'Hi, Welcome to Krishi Clinic'
-#         sendSessionMessage(welcomeMessage)
-#         user_response =  cropList()
-#         print(user_response)
-#     return "ok"    
+                elif(nextQuestion < 5):
+                    question = mongoDB.db2.questions.find_one({"no":str(nextQuestion)})['question']
+                    print(question)
+                    sendSessionMessage(question)
+                else:
+                    sendSessionMessage('Thankyou for Your Time!!')
+
+            else:
+                    sendSessionMessage('All Questions are asked')
+
+    return "ok"    
 
 @app.route('/add-question', methods=['POST'], endpoint='add_question')
 def add_question():
