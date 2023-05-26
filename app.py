@@ -83,11 +83,7 @@ def functionCall():
         
             elif(user_response == 'Other'):
                 print('User selected Other Option')
-                # Ask an Open ended Question
                 mongoDB.db.user.insert_one({"phoneNumber":918355882259, "senderName": senderName,"already":0,"next":1, "Crop Name": user_response})
-                # openEndedQuestion = 'Write a crop you want to select'
-                # sendSessionMessage(openEndedQuestion)
-                # print(textByUser)
 
                 nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
                 print(nextQuestion)
@@ -97,6 +93,7 @@ def functionCall():
                 sendSessionMessage(question)
 
         else :
+            isWrongInput = False
             print("In the else block")
             print(textByUser)
 
@@ -123,22 +120,41 @@ def functionCall():
 
                 else :
                 # Store Response By User
-                    mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
-                    print('Answer sent by USer : ' + textByUser)
+                    if(dataType == "String"):
+                        print('Input should be a String : ')
+                        if(textByUser.isnumeric() == False)  :  
+                            print("Input is a String")
+                            mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
+                            print('Answer sent by USer : ' + textByUser)
+                        else : 
+                            isWrongInput = True
+                    elif(dataType == "Number"):
+                        print('Input should be a Number : ')
+                        if(textByUser.isnumeric() == True)  :  
+                            print("Input is a Number")
+                            mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
+                            print('Answer sent by USer : ' + textByUser)
+                        else : 
+                            isWrongInput = True        
+                    else:
+                        print('Here')
+                        mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
+                        print('Answer sent by USer : ' + textByUser)
 
                 # Asking Next Question
-                nextQuestion += 1
-                if(nextQuestion == 3):
-                    print('Ask User for his language preference')
-                    language = languagePreference()
-                    print(language)
+                if(isWrongInput == False):
+                    nextQuestion += 1
+                    if(nextQuestion == 3):
+                        print('Ask User for his language preference')
+                        language = languagePreference()
+                        print(language)
 
-                elif(nextQuestion < 5):
-                    question = mongoDB.db2.questions.find_one({"no":str(nextQuestion)})['question']
-                    print(question)
-                    sendSessionMessage(question)
-                else:
-                    sendSessionMessage('Thankyou for Your Time!!')
+                    elif nextQuestion < 5 and isWrongInput == False:
+                        question = mongoDB.db2.questions.find_one({"no":str(nextQuestion)})['question']
+                        print(question)
+                        sendSessionMessage(question)
+                elif isWrongInput == True:
+                    sendSessionMessage("Input format is not correct")
 
             else:
                     sendSessionMessage('All Questions are asked')
