@@ -1,7 +1,8 @@
 import mongoDB  
 from SessionMessage import sendSessionMessage
-from cropList import cropList
+from cropList import cropListEnglish
 from urllib.parse import urlparse
+from  downloadAudio import downloadAudio
 
 def EnglishContent0(nextQuestion):
     question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
@@ -9,7 +10,7 @@ def EnglishContent0(nextQuestion):
     sendSessionMessage(question)
 
 def EnglishContent1():
-    cropList()
+    cropListEnglish()
 
     return "ok"
 
@@ -17,10 +18,17 @@ def EnglishContent2(data, textByUser):
     dataSent = data['type']
     print(dataSent)
     nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
-    print(nextQuestion)   
+    print(nextQuestion)
+    alreadyAsked = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['already']
+    print(alreadyAsked)   
+    CropValue = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['Crop Name']
+    print("Crop Name is  : " + CropValue)
+
     
     if(dataSent == 'text'):
         print('Data sent is a text')
+        print(nextQuestion)
+
         if(nextQuestion < 4):
             print("Inside nextQuestion if Statement")
             question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
@@ -33,8 +41,13 @@ def EnglishContent2(data, textByUser):
                 print('Input should be a String : ')
                 if(textByUser.isnumeric() == False)  :  
                     print("Input is a String")
-                    mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
-                    print('Answer sent by USer : ' + textByUser)
+                    if(alreadyAsked == 0):
+                        print('Store value of Crop in a new field')
+                        print('Text by USer is :  ' + textByUser)
+                        mongoDB.db.user.update_one({'phoneNumber': 918355882259 },{'$set': {'Other': textByUser},"$inc":{"already":1,"next":1}},upsert=True)
+                    else:
+                        mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
+                        print('Answer sent by USer : ' + textByUser)
 
                     nextQuestion += 1
                     if nextQuestion < 5 :
@@ -43,13 +56,19 @@ def EnglishContent2(data, textByUser):
                         sendSessionMessage(question)
 
                 else : 
-                    sendSessionMessage('Incorrect Input....Input a String')
+                    sendSessionMessage('गलत इनपुट....इनपुट एक स्ट्रिंग')
             elif(dataType == "Number"):
                 print('Input should be a Number : ')
                 if(textByUser.isnumeric() == True)  :  
                     print("Input is a Number")
-                    mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
-                    print('Answer sent by USer : ' + textByUser)
+                    textByUserNumber = int(textByUser)
+                    if(alreadyAsked == 1):
+                        print('Store value of Crop in a new field')
+                        print('Text by USer is :  ' + textByUser)
+                        mongoDB.db.user.update_one({'phoneNumber': 918355882259 },{'$set': {'Acre': textByUserNumber},"$inc":{"already":1,"next":1}},upsert=True)
+                    else:
+                        mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
+                        print('Answer sent by USer : ' + textByUser)
 
                     nextQuestion += 1
                     if nextQuestion < 5 :
@@ -57,9 +76,9 @@ def EnglishContent2(data, textByUser):
                         print(question)
                         sendSessionMessage(question)
                 else : 
-                    sendSessionMessage('Incorrect Input....Input a Number')         
+                    sendSessionMessage('गलत इनपुट...कोई नंबर डालें')         
             else:
-                print('Here')
+                print('Input can be a string or Audio')
                 mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
                 print('Answer sent by User : ' + textByUser)
 
@@ -69,17 +88,14 @@ def EnglishContent2(data, textByUser):
     elif(dataSent == 'audio'):
         print('Media is Audio')
         audio = data['data']
+        downloadAudio(audio)
         print(audio)
-
-        filename = audio.split("/")[-1].split("=")[-1]
-        print(filename)
-
         nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
         print(nextQuestion)
         question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
         print(question)
 
-        mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"audio_url":filename}}},upsert=True)
-                   
+        mongoDB.db.user.update_one({"phoneNumber": 918355882259},{"$set": {"audio_url": audio},"$inc": {"already": 1, "next": 1}},upsert=True)
+          
 
     return "ok"             

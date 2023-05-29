@@ -19,7 +19,6 @@ from EnglishContent import EnglishContent2
 from MarathiContent import MarathiContent0
 from MarathiContent import MarathiContent1
 from MarathiContent import MarathiContent2
-from cropList import cropList
 from LanguagePreference import languagePreference
 
 
@@ -53,7 +52,7 @@ def functionCall():
     phoneNumber = data['waId']
     senderName = data['senderName']
 
-    if(textByUser == 'Hi'):
+    if(textByUser == 'KrishiClinicTest'):
         welcomeMessage = 'Hi, Welcome to Krishi Clinic'
         sendSessionMessage(welcomeMessage)
 
@@ -81,14 +80,16 @@ def functionCall():
         #     print(textByUser)
             print('HEllo00')
             user_response = data['listReply']['title']
-            print(user_response)
+            print("User input is : " + user_response)
 
-            if(user_response != 'Other'):
+            if user_response != 'Other' and user_response != 'अन्य' and user_response != 'इतर':
                 print('User Input is a Crop')
                 mongoDB.db.user.update_one({"phoneNumber": 918355882259}, {"$set": {"already": 1, "next": 2, "Crop Name": user_response}}, upsert=True)
 
                 nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
                 print(nextQuestion)
+
+                language = textByUser
 
                 language = mongoDB.db.user.find_one({"phoneNumber": 918355882259})["language"]
 
@@ -102,7 +103,7 @@ def functionCall():
                     print('Language is Marathi')   
                     MarathiContent0(nextQuestion) 
         
-            elif(user_response == 'Other'):
+            elif(user_response == 'Other' or user_response == 'अन्य' or user_response == 'इतर'):
                 print('User selected Other Option')
    
                 mongoDB.db.user.update_one({"phoneNumber": 918355882259}, {"$set": {"already": 0, "next": 1, "Crop Name": user_response}}, upsert=True)
@@ -139,7 +140,7 @@ def functionCall():
                 elif(language == 'Marathi'):
                     print('Language is Marathi')   
                     MarathiContent1() 
-
+            
             else:
                 language = mongoDB.db.user.find_one({"phoneNumber": 918355882259})["language"]
 

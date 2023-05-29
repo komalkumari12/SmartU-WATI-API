@@ -9,7 +9,7 @@ load_dotenv()
 API = os.getenv("API")
 URL = os.getenv("URL")
 
-def cropList():
+def cropListEnglish():
     url = URL + "/sendInteractiveListMessage?whatsappNumber=918355882259"
 
     payload = {
@@ -22,34 +22,155 @@ def cropList():
             "title": "Crop",
             "rows": [
             {
-                "title": "Crop1",
+                "title": "Orange",
             },
             {
-                "title": "Crop2",
+                "title": "Cotton",
             },
             {
-                "title": "Crop3",
+                "title": "Wheat",
             },
             {
-                "title": "Crop4",
+                "title": "Soybean",
             },
             {
-                "title": "Crop5",
+                "title": "Gram",
             },
             {
-                "title": "Crop6",
+                "title": "Onion",
             },
             {
-                "title": "Crop7",
+                "title": "Banana",
             },
             {
-                "title": "Crop8",
+                "title": "Groundnut",
             },
             {
-                "title": "Crop9",
+                "title": "tur",
             },
             {
                 "title": "Other",
+            }
+            ]
+        }
+  ]
+}
+    headers = {
+        "content-type": "text/json",
+        "Authorization": API
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    # print(response)
+    # print(response.text)
+
+    response_data = response.json()
+    print(response_data)
+
+    return "ok"
+
+
+def cropListHindi():
+    url = URL + "/sendInteractiveListMessage?whatsappNumber=918355882259"
+
+    payload = {
+        "header": "फसलों की किस्मों की सूची",
+        "body": "एक फसल चुनें",
+        # "footer": "mc",
+        "buttonText": "काटना",
+        "sections": [
+        {
+            "title": "काटना",
+            "rows": [
+            {
+                "title": "सांता",
+            },
+            {
+                "title": "कपास",
+            },
+            {
+                "title": "गाह",
+            },
+            {
+                "title": "सोयाबीन",
+            },
+            {
+                "title": "ग्राम",
+            },
+            {
+                "title": "प्याज",
+            },
+            {
+                "title": "केला",
+            },
+            {
+                "title": "मूंगफली",
+            },
+            {
+                "title": "तूर",
+            },
+            {
+                "title": "अन्य",
+            }
+            ]
+        }
+  ]
+}
+    headers = {
+        "content-type": "text/json",
+        "Authorization": API
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    # print(response)
+    # print(response.text)
+
+    response_data = response.json()
+    print(response_data)
+
+    return "ok"    
+
+def cropListMarathi():
+    url = URL + "/sendInteractiveListMessage?whatsappNumber=918355882259"
+
+    payload = {
+        "header": "पिकांच्या विविधतेची यादी",
+        "body": "एक पीक निवडा",
+        # "footer": "mc",
+        "buttonText": "पीक",
+        "sections": [
+        {
+            "title": "पीक",
+            "rows": [
+            {
+                "title": "संता",
+            },
+            {
+                "title": "कापूस",
+            },
+            {
+                "title": "गह",
+            },
+            {
+                "title": "सोयाबीन",
+            },
+            {
+                "title": "हरभरा",
+            },
+            {
+                "title": "कांदा",
+            },
+            {
+                "title": "केळी",
+            },
+            {
+                "title": "भुईमूग",
+            },
+            {
+                "title": "तुर",
+            },
+            {
+                "title": "इतर",
             }
             ]
         }
