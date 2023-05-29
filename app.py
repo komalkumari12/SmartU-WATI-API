@@ -123,6 +123,12 @@ def functionCall():
                     MarathiContent0(nextQuestion)
 
         else:
+            if(textByUser == 'Yes' or textByUser == 'No'):
+                # More Queries for USers to input
+                print('User Response for more questions is : ' + textByUser)
+                if(textByUser == 'Yes'):
+                    sendSessionMessage('Add more Queries either by Text or Mic')
+                    
             if (textByUser == 'English' or textByUser == 'Hindi' or textByUser == 'Marathi'):
                 print('Store language in DB')
                 print('language input by user  : '  + textByUser)

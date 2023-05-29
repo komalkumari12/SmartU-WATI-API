@@ -3,6 +3,7 @@ from SessionMessage import sendSessionMessage
 from cropList import cropListEnglish
 from urllib.parse import urlparse
 from  downloadAudio import downloadAudio
+from MoreQuestions import moreQuestions
 
 def EnglishContent0(nextQuestion):
     question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
@@ -29,7 +30,7 @@ def EnglishContent2(data, textByUser):
         print('Data sent is a text')
         print(nextQuestion)
 
-        if(nextQuestion < 4):
+        if(nextQuestion < 5):
             print("Inside nextQuestion if Statement")
             question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
             print(question)
@@ -56,7 +57,7 @@ def EnglishContent2(data, textByUser):
                         sendSessionMessage(question)
 
                 else : 
-                    sendSessionMessage('गलत इनपुट....इनपुट एक स्ट्रिंग')
+                    sendSessionMessage('Incorrect Input.... Input a string')
             elif(dataType == "Number"):
                 print('Input should be a Number : ')
                 if(textByUser.isnumeric() == True)  :  
@@ -76,7 +77,7 @@ def EnglishContent2(data, textByUser):
                         print(question)
                         sendSessionMessage(question)
                 else : 
-                    sendSessionMessage('गलत इनपुट...कोई नंबर डालें')         
+                    sendSessionMessage('Incorrect Input.... Input a Number')         
             else:
                 print('Input can be a string or Audio')
                 mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
@@ -92,10 +93,17 @@ def EnglishContent2(data, textByUser):
         print(audio)
         nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
         print(nextQuestion)
-        question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
-        print(question)
+        # question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
+        # print(question)
 
-        mongoDB.db.user.update_one({"phoneNumber": 918355882259},{"$set": {"audio_url": audio},"$inc": {"already": 1, "next": 1}},upsert=True)
+        # mongoDB.db.user.update_one({"phoneNumber": 918355882259},{"$set": {"audio_url": audio},"$inc": {"already": 1, "next": 1}},upsert=True)
           
+        length = len(mongoDB.db.user.find_one({'phoneNumber': 918355882259}).get('audio_urls', []))
+        print('Length of Audio Url is : ') 
+        print(length)
 
+        mongoDB.db.user.update_one({'phoneNumber': 918355882259},{'$push': {'audio_urls': {'$each': [audio]}},'$inc': {'already': 1, 'next': 1}},upsert=True)  
+        
+        if(length <= 1):
+            moreQuestions()
     return "ok"             

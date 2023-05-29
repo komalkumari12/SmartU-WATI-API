@@ -57,7 +57,7 @@ def MarathiContent2(data, textByUser):
                 print('Input should be a Number : ')
                 if(textByUser.isnumeric() == True)  :  
                     print("Input is a Number")
-                    textByUserNumber = int(textByUser)
+                    
                     if(alreadyAsked == 1):
                         print('Store value of Crop in a new field')
                         print('Text by USer is :  ' + textByUser)
@@ -92,6 +92,5 @@ def MarathiContent2(data, textByUser):
         print(question)
 
         mongoDB.db.user.update_one({"phoneNumber": 918355882259},{"$set": {"audio_url": audio},"$inc": {"already": 1, "next": 1}},upsert=True)
-          
-
+        
     return "ok"
