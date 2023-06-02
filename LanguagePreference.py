@@ -12,7 +12,7 @@ def languagePreference():
     url = URL + "/sendInteractiveButtonsMessage?whatsappNumber=918355882259"
 
     payload = {
-        "buttons": [{"text": "English"},{"text":"Hindi"},{"text":"Marathi"}],
+        "buttons": [{"text": "English"},{"text":"हिंदी"},{"text":"मराठी"}],
         "body": "Language?",
         "footer": ""
     }

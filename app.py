@@ -59,6 +59,14 @@ def functionCall():
         language = languagePreference()
         print(language)
 
+    if(data['type'] == 'image'):
+        print('User sent a Image')
+
+        image = data['data']
+        print(image)
+        
+        EnglishContent2(data, image)
+
     if(data['type'] == 'audio'):
         print('User input is a Audio')
 
@@ -70,9 +78,9 @@ def functionCall():
 
         if(language == 'English'):
             EnglishContent2(data, audio)
-        elif(language == 'Hindi'):
+        elif(language == 'हिंदी'):
             HindiContent2(data, audio)
-        elif(language == 'Marathi'):  
+        elif(language == 'मराठी'):  
             MarathiContent2(data, audio)
 
     else:
@@ -96,11 +104,11 @@ def functionCall():
                 if(language == 'English'):
                     print('Language is English')
                     EnglishContent0(nextQuestion)
-                elif(language == 'Hindi'):
-                    print('Language is Hindi')
+                elif(language == 'हिंदी'):
+                    print('Language is हिंदी')
                     HindiContent0(nextQuestion)
-                elif(language == 'Marathi'):
-                    print('Language is Marathi')   
+                elif(language == 'मराठी'):
+                    print('Language is मराठी')   
                     MarathiContent0(nextQuestion) 
         
             elif(user_response == 'Other' or user_response == 'अन्य' or user_response == 'इतर'):
@@ -115,36 +123,64 @@ def functionCall():
                 if(language == 'English'):
                     print('Language is English')
                     EnglishContent0(nextQuestion)
-                elif(language == 'Hindi'):
-                    print('Language is Hindi')
+                elif(language == 'हिंदी'):
+                    print('Language is हिंदी')
                     HindiContent0(nextQuestion)
-                elif(language == 'Marathi'):
-                    print('Language is Marathi')   
+                elif(language == 'मराठी'):
+                    print('Language is मराठी')   
                     MarathiContent0(nextQuestion)
 
         else:
-            if(textByUser == 'Yes' or textByUser == 'No'):
+            if textByUser == 'Yes' or textByUser == 'हाँ' or textByUser == 'होय' or textByUser == 'No' or textByUser == 'नहीं' or textByUser == 'नाही':
+  
+                language = mongoDB.db.user.find_one({"phoneNumber": 918355882259})["language"]
+                print(language)
                 # More Queries for USers to input
                 print('User Response for more questions is : ' + textByUser)
-                if(textByUser == 'Yes'):
-                    sendSessionMessage('Add more Queries either by Text or Mic')
+                print('Entered here in yes no block')
+                if(textByUser == 'Yes' or  textByUser == 'हाँ' or textByUser == 'होय'):
+
+                    print('User selected a yes')
+                    language = mongoDB.db.user.find_one({"phoneNumber": 918355882259})["language"]
+                    print(language)
+
+                    if(language == 'English'):
+                        sendSessionMessage('Add more Queries either by Text or Mic')
+                    elif(language == 'हिंदी'):
+                        print('Entered into हिंदी Content')
+                        sendSessionMessage('कृपया टेक्स्ट या माइक के माध्यम से और प्रश्न जोड़ें।')
+                    elif(language == 'मराठी'):
+                        sendSessionMessage('कृपया मजकूर किंवा मायक द्वारे अधिक प्रश्न जोडा')
+
+                if(textByUser == 'No' or textByUser == 'नहीं' or textByUser == 'नाही'):
+                    print('User selected a yes')
+
+                    language = mongoDB.db.user.find_one({"phoneNumber": 918355882259})["language"]
+                    print(language)
+
+                    if(language == 'English'):
+                        sendSessionMessage('Please add photos !!')
+                    elif(language == 'हिंदी'):
+                        sendSessionMessage('कृपया फोटो जोड़ें।')
+                    elif(language == 'मराठी'):
+                        sendSessionMessage('कृपया फोटों जोडा.')
+                
                     
-            if (textByUser == 'English' or textByUser == 'Hindi' or textByUser == 'Marathi'):
+            if (textByUser == 'English' or textByUser == 'हिंदी' or textByUser == 'मराठी'):
                 print('Store language in DB')
                 print('language input by user  : '  + textByUser)
                 # Store Language in DB
-                mongoDB.db.user.insert_one({"phoneNumber":918355882259, "senderName": senderName, "language": textByUser})
-
+                mongoDB.db.user.insert_one({"phoneNumber": 918355882259,"senderName": senderName,"language": textByUser,"user_id":"KC"})
                 language = mongoDB.db.user.find_one({"phoneNumber": 918355882259})["language"]
 
                 if(language == 'English'):
                     print('Language is English')
                     EnglishContent1()
-                elif(language == 'Hindi'):
-                    print('Language is Hindi')
+                elif(language == 'हिंदी'):
+                    print('Language is हिंदी')
                     HindiContent1()
-                elif(language == 'Marathi'):
-                    print('Language is Marathi')   
+                elif(language == 'मराठी'):
+                    print('Language is मराठी')   
                     MarathiContent1() 
             
             else:
@@ -153,11 +189,11 @@ def functionCall():
                 if(language == 'English'):
                     print('Language is English')
                     EnglishContent2(data, textByUser)
-                elif(language == 'Hindi'):
-                    print('Language is Hindi')
+                elif(language == 'हिंदी'):
+                    print('Language is हिंदी')
                     HindiContent2(data, textByUser)
-                elif(language == 'Marathi'):
-                    print('Language is Marathi')
+                elif(language == 'मराठी'):
+                    print('Language is मराठी')
                     MarathiContent2(data, textByUser)
 
     return "ok"    

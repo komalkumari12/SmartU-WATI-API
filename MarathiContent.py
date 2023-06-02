@@ -2,6 +2,7 @@ import mongoDB
 from SessionMessage import sendSessionMessage
 from cropList import cropListMarathi
 from  downloadAudio import downloadAudio
+from MoreQuestions import moreQuestionsMarathi
 
 def MarathiContent0(nextQuestion):
     question = mongoDB.db2.Marathi.find_one({"no":str(nextQuestion)})['question']
@@ -25,7 +26,7 @@ def MarathiContent2(data, textByUser):
 
     if(dataSent == 'text'):
         print('Data sent is a text')
-        if(nextQuestion < 4):
+        if(nextQuestion < 5):
             print("Inside nextQuestion if Statement")
             question = mongoDB.db2.Marathi.find_one({"no":str(nextQuestion)})['question']
             print(question)
@@ -57,7 +58,7 @@ def MarathiContent2(data, textByUser):
                 print('Input should be a Number : ')
                 if(textByUser.isnumeric() == True)  :  
                     print("Input is a Number")
-                    
+                    textByUserNumber = int(textByUser)
                     if(alreadyAsked == 1):
                         print('Store value of Crop in a new field')
                         print('Text by USer is :  ' + textByUser)
@@ -74,13 +75,10 @@ def MarathiContent2(data, textByUser):
                 else : 
                     sendSessionMessage('चुकीचे इनपुट....एक नंबर इनपुट करा')         
             else:
-                print('Here')
+                print('Input can be a string or Audio')
                 mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
                 print('Answer sent by User : ' + textByUser)
 
-        else:
-            sendSessionMessage('Thankyou for your Time !!')   
-    
     elif(dataSent == 'audio'):
         print('Media is Audio')
         audio = data['data']
@@ -88,9 +86,9 @@ def MarathiContent2(data, textByUser):
         print(audio)
         nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
         print(nextQuestion)
-        question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
-        print(question)
-
-        mongoDB.db.user.update_one({"phoneNumber": 918355882259},{"$set": {"audio_url": audio},"$inc": {"already": 1, "next": 1}},upsert=True)
         
+
+        mongoDB.db.user.update_one({'phoneNumber': 918355882259},{'$push': {'audio_urls': {'$each': [audio]}}},upsert=True)  
+        
+        moreQuestionsMarathi()
     return "ok"

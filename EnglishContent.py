@@ -3,7 +3,10 @@ from SessionMessage import sendSessionMessage
 from cropList import cropListEnglish
 from urllib.parse import urlparse
 from  downloadAudio import downloadAudio
-from MoreQuestions import moreQuestions
+from MoreQuestions import moreQuestionsEnglish
+from downloadImage import downloadImage
+from SendImageFile import sendImageFile
+from kcImage import execute
 
 def EnglishContent0(nextQuestion):
     question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
@@ -25,7 +28,6 @@ def EnglishContent2(data, textByUser):
     CropValue = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['Crop Name']
     print("Crop Name is  : " + CropValue)
 
-    
     if(dataSent == 'text'):
         print('Data sent is a text')
         print(nextQuestion)
@@ -83,9 +85,6 @@ def EnglishContent2(data, textByUser):
                 mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
                 print('Answer sent by User : ' + textByUser)
 
-        else:
-            sendSessionMessage('Thankyou for your Time !!')   
-
     elif(dataSent == 'audio'):
         print('Media is Audio')
         audio = data['data']
@@ -93,17 +92,22 @@ def EnglishContent2(data, textByUser):
         print(audio)
         nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
         print(nextQuestion)
-        # question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
-        # print(question)
 
-        # mongoDB.db.user.update_one({"phoneNumber": 918355882259},{"$set": {"audio_url": audio},"$inc": {"already": 1, "next": 1}},upsert=True)
-          
-        length = len(mongoDB.db.user.find_one({'phoneNumber': 918355882259}).get('audio_urls', []))
-        print('Length of Audio Url is : ') 
-        print(length)
+        # length = len(mongoDB.db.user.find_one({'phoneNumber': 918355882259}).get('audio_urls', []))
+        # print('Length of Audio Url is : ') 
+        # print(length)
 
-        mongoDB.db.user.update_one({'phoneNumber': 918355882259},{'$push': {'audio_urls': {'$each': [audio]}},'$inc': {'already': 1, 'next': 1}},upsert=True)  
+        mongoDB.db.user.update_one({'phoneNumber': 918355882259},{'$push': {'audio_urls': {'$each': [audio]}}},upsert=True)  
         
-        if(length <= 1):
-            moreQuestions()
+        moreQuestionsEnglish()
+
+    elif(data['type']=='image'):
+        print('image is sent by User , Now in EnglishContent2 function')
+        # print('In English Content File')
+        # print('User Sent an Image')
+
+        # imgUrl = downloadImage(data['data'])
+        # return sendImageFile(imgUrl)    
+
+        execute(data)
     return "ok"             
