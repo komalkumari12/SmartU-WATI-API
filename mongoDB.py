@@ -27,10 +27,10 @@ db2 = client.get_database('content')
 def create_record(phone, name, image_url):
     try:
         client = pymongo.MongoClient()
-        db = client["Krishi_Clinic"]
-        collection = db["kc_upload"]
+        db = client["flask_mongodb_atlas"]
+        collection = db["user"]
 
-        user_data = {"userID": phone, "name": name, "sent_image":""}
+        user_data = {"user_id": phone, "name": name, "sent_image":""}
         updated_status = {"$push": {"image_url": image_url, "stored_image": image_url}}
 
         result = collection.update_one(user_data, updated_status, upsert=True)
@@ -50,10 +50,10 @@ def find_user(senderID):
     try:
 
         client = pymongo.MongoClient()
-        db = client["Krishi_Clinic"]
-        collection = db["kc_upload"]
+        db = client["flask_mongodb_atlas"]
+        collection = db["user"]
 
-        query = {"userID": senderID}
+        query = {"user_id": senderID}
 
         print("query ", collection.find_one(query))
         return collection.find_one(query)
@@ -61,12 +61,12 @@ def find_user(senderID):
     except Exception as e:
         print("find_user error", e)
 
-def retrieve_field(userID, field_name):
+def retrieve_field(user_id, field_name):
     try:
         client = pymongo.MongoClient()
-        db = client["Krishi_Clinic"]
-        collection = db["kc_upload"]
-        doc = collection.find_one({'userID': userID})
+        db = client["flask_mongodb_atlas"]
+        collection = db["user"]
+        doc = collection.find_one({'user_id': user_id})
 
         if doc:
             field = doc.get(field_name)
@@ -79,19 +79,19 @@ def retrieve_field(userID, field_name):
     except Exception as e:
         print("find  error", e)
         
-def update_image_url(userID,image_field, image_url):
+def update_image_url(user_id,image_field, image_url):
     client = pymongo.MongoClient()
-    db = client["Krishi_Clinic"]
-    collection = db["kc_upload"]
+    db = client["flask_mongodb_atlas"]
+    collection = db["user"]
 
-    user_data = {"userID": userID}
+    user_data = {"user_id": user_id}
     chat_log = {
         "$push": {image_field: 
                   {"$each":[image_url], "$position": 0}
                 }
             }
-                  
     result = collection.update_one(user_data, chat_log, upsert=True)
+
     print("update_image_field ", result)
 
 
@@ -99,10 +99,10 @@ def update_image_url(userID,image_field, image_url):
 def update_field_set(phone, field_name, field_value):
     try:
         client = pymongo.MongoClient()
-        db = client["Krishi_Clinic"]
-        collection = db["kc_upload"]
+        db = client["flask_mongodb_atlas"]
+        collection = db["user"]
 
-        user_data = {"userID": phone}
+        user_data = {"user_id": phone}
         updated_status = {"$set": {field_name: field_value}}
 
         collection.update_one(user_data, updated_status, upsert=True)

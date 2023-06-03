@@ -70,8 +70,15 @@ def EnglishContent2(data, textByUser):
                         print('Text by USer is :  ' + textByUser)
                         mongoDB.db.user.update_one({'phoneNumber': 918355882259 },{'$set': {'Acre': textByUserNumber},"$inc":{"already":1,"next":1}},upsert=True)
                     else:
-                        mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
+                        user_data = {"phoneNumber":918355882259},{"$inc":{"already":1,"next":1}}
+                        update_parameters = {"$push":
+                        {"cropQuestions":{"Question":question,"Answer":textByUser}}
+                        }                                   
+                        mongoDB.db.user.update_one(user_data,update_parameters,upsert=True)
+
                         print('Answer sent by USer : ' + textByUser)
+
+
 
                     nextQuestion += 1
                     if nextQuestion < 5 :

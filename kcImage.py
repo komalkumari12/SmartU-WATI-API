@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import re
 import os
 import time
+from downloadImage import downloadImage
 # import gdrive as gd
 import mongoDB as mdb
 # import redis_test as rd
@@ -48,15 +49,13 @@ def execute(data):
         """
         if existing_record:
             print("1. existing_record ", existing_record)
-
+            new_image_url = downloadImage(new_image_url)
+            image_urls_arr.append(new_image_url)
             mdb.update_image_url(senderID, "image_url", new_image_url)
             mdb.update_image_url(senderID, "stored_image", new_image_url)
+            image_urls = mdb.retrieve_field(senderID, "image_url")
+            stored_image = mdb.retrieve_field(senderID, "stored_image")
             mdb.update_field_set(senderID, "sent_image", image_urls[0]) 
-
-            # image_urls = mdb.retrieve_field(senderID, "image_url")
-            # stored_image = mdb.retrieve_field(senderID, "stored_image")
-
-
             
         else:
             print("2. does not have an existing_record ", existing_record)

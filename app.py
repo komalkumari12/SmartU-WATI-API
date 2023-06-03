@@ -87,6 +87,7 @@ def functionCall():
         if textByUser is None:
         #     print(textByUser)
             print('HEllo00')
+            print(data)
             user_response = data['listReply']['title']
             print("User input is : " + user_response)
 
@@ -170,7 +171,9 @@ def functionCall():
                 print('Store language in DB')
                 print('language input by user  : '  + textByUser)
                 # Store Language in DB
-                mongoDB.db.user.insert_one({"phoneNumber": 918355882259,"senderName": senderName,"language": textByUser,"user_id":"KC"})
+                # image_url = {""}
+                mongoDB.db.user.insert_one({"phoneNumber": 918355882259,"senderName": senderName,"language": textByUser,"user_id":"KC", })
+
                 language = mongoDB.db.user.find_one({"phoneNumber": 918355882259})["language"]
 
                 if(language == 'English'):
