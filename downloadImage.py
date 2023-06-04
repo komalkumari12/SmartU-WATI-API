@@ -2,6 +2,8 @@ import requests
 import cloudinary
 import cloudinary.uploader
 import os
+
+
 def downloadImage(url):
     payload = ""
     headers = {

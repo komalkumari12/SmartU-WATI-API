@@ -1,4 +1,4 @@
-import mongoDB  
+import mongoDB as mdb
 from SessionMessage import sendSessionMessage
 from cropList import cropListEnglish
 from urllib.parse import urlparse
@@ -9,7 +9,7 @@ from SendImageFile import sendImageFile
 from kcImage import execute
 
 def EnglishContent0(nextQuestion):
-    question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
+    question = mdb.db2.English.find_one({"no":str(nextQuestion)})['question']
     print(question)
     sendSessionMessage(question)
 
@@ -20,12 +20,15 @@ def EnglishContent1():
 
 def EnglishContent2(data, textByUser):
     dataSent = data['type']
+
     print(dataSent)
-    nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
+    senderID = data.get('waId')
+
+    nextQuestion = mdb.db['user'].find_one({'phoneNumber':918355882259})['next']
     print(nextQuestion)
-    alreadyAsked = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['already']
+    alreadyAsked = mdb.db['user'].find_one({'phoneNumber':918355882259})['already']
     print(alreadyAsked)   
-    CropValue = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['Crop Name']
+    CropValue = mdb.db['user'].find_one({'phoneNumber':918355882259})['Crop Name']
     print("Crop Name is  : " + CropValue)
 
     if(dataSent == 'text'):
@@ -34,9 +37,9 @@ def EnglishContent2(data, textByUser):
 
         if(nextQuestion < 5):
             print("Inside nextQuestion if Statement")
-            question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
+            question = mdb.db2.English.find_one({"no":str(nextQuestion)})['question']
             print(question)
-            dataType = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['dataType']
+            dataType = mdb.db2.English.find_one({"no":str(nextQuestion)})['dataType']
             print(dataType)
 
             # Store Response By User
@@ -47,14 +50,14 @@ def EnglishContent2(data, textByUser):
                     if(alreadyAsked == 0):
                         print('Store value of Crop in a new field')
                         print('Text by USer is :  ' + textByUser)
-                        mongoDB.db.user.update_one({'phoneNumber': 918355882259 },{'$set': {'Other': textByUser},"$inc":{"already":1,"next":1}},upsert=True)
+                        mdb.db.user.update_one({'phoneNumber': 918355882259 },{'$set': {'Other': textByUser},"$inc":{"already":1,"next":1}},upsert=True)
                     else:
-                        mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
+                        mdb.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
                         print('Answer sent by USer : ' + textByUser)
 
                     nextQuestion += 1
                     if nextQuestion < 5 :
-                        question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
+                        question = mdb.db2.English.find_one({"no":str(nextQuestion)})['question']
                         print(question)
                         sendSessionMessage(question)
 
@@ -62,34 +65,37 @@ def EnglishContent2(data, textByUser):
                     sendSessionMessage('Incorrect Input.... Input a string')
             elif(dataType == "Number"):
                 print('Input should be a Number : ')
-                if(textByUser.isnumeric() == True)  :  
+                if(textByUser.isnumeric() == True)  : 
                     print("Input is a Number")
                     textByUserNumber = int(textByUser)
-                    if(alreadyAsked == 1):
-                        print('Store value of Crop in a new field')
-                        print('Text by USer is :  ' + textByUser)
-                        mongoDB.db.user.update_one({'phoneNumber': 918355882259 },{'$set': {'Acre': textByUserNumber},"$inc":{"already":1,"next":1}},upsert=True)
-                    else:
-                        user_data = {"phoneNumber":918355882259},{"$inc":{"already":1,"next":1}}
-                        update_parameters = {"$push":
-                        {"cropQuestions":{"Question":question,"Answer":textByUser}}
-                        }                                   
-                        mongoDB.db.user.update_one(user_data,update_parameters,upsert=True)
+                    # now check for range validation 
+                    if(textByUserNumber < 100):
 
-                        print('Answer sent by USer : ' + textByUser)
+                        if(textByUserNumber >= 100 and alreadyAsked == 1):
+                            print('Store value of Crop in a new field')
+                            print('Text by USer is :  ' + textByUser)
+                            mdb.db.user.update_one({'phoneNumber': 918355882259 },{'$set': {'Acre': textByUserNumber},"$inc":{"already":1,"next":1}},upsert=True)
+                        else:
+                            user_data = {"phoneNumber":918355882259},{"$inc":{"already":1,"next":1}}
+                            update_parameters = {"$push":
+                            {"cropQuestions":{"Question":question,"Answer":textByUser}}
+                            }                                   
+                            mdb.db.user.update_one(user_data,update_parameters,upsert=True)
 
+                            print('Answer sent by USer : ' + textByUser)
 
-
-                    nextQuestion += 1
-                    if nextQuestion < 5 :
-                        question = mongoDB.db2.English.find_one({"no":str(nextQuestion)})['question']
-                        print(question)
-                        sendSessionMessage(question)
+                        nextQuestion += 1
+                        if nextQuestion < 5 :
+                            question = mdb.db2.English.find_one({"no":str(nextQuestion)})['question']
+                            print(question)
+                            sendSessionMessage(question)
+                    else: 
+                        sendSessionMessage('Number of Acres should be in Valid Range')
                 else : 
                     sendSessionMessage('Incorrect Input.... Input a Number')         
             else:
                 print('Input can be a string or Audio')
-                mongoDB.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
+                mdb.db.user.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
                 print('Answer sent by User : ' + textByUser)
 
     elif(dataSent == 'audio'):
@@ -97,14 +103,14 @@ def EnglishContent2(data, textByUser):
         audio = data['data']
         downloadAudio(audio)
         print(audio)
-        nextQuestion = mongoDB.db['user'].find_one({'phoneNumber':918355882259})['next']
+        nextQuestion = mdb.db['user'].find_one({'phoneNumber':918355882259})['next']
         print(nextQuestion)
 
-        # length = len(mongoDB.db.user.find_one({'phoneNumber': 918355882259}).get('audio_urls', []))
+        # length = len(mdb.db.user.find_one({'phoneNumber': 918355882259}).get('audio_urls', []))
         # print('Length of Audio Url is : ') 
         # print(length)
 
-        mongoDB.db.user.update_one({'phoneNumber': 918355882259},{'$push': {'audio_urls': {'$each': [audio]}}},upsert=True)  
+        mdb.db.user.update_one({'phoneNumber': 918355882259},{'$push': {'audio_urls': {'$each': [audio]}}},upsert=True)  
         
         moreQuestionsEnglish()
 
@@ -115,6 +121,12 @@ def EnglishContent2(data, textByUser):
 
         # imgUrl = downloadImage(data['data'])
         # return sendImageFile(imgUrl)    
-
+        # new_image_url = data.get('data')
+        # mdb.update_image_url(senderID, "image_url", new_image_url)
+        # mdb.update_image_url(senderID, "stored_image", new_image_url)
+        # image_urls = mdb.retrieve_field(senderID, "image_url")
+        # mdb.update_field_set(senderID, "sent_image", image_urls[0])
+        # cloudinary_url = downloadImage(new_image_url)
+               
         execute(data)
     return "ok"             
