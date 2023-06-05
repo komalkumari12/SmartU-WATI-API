@@ -16,7 +16,7 @@ load_dotenv()
 
 def sendText(text, senderID):
 
-    url = os.getenv("URL")+"/api/v1/sendSessionMessage/"+senderID
+    url = os.getenv("URL")+"/api/v1/sendSessionMessage/"+str(senderID)
 
     headers = {"Authorization": os.getenv("API")}
 
@@ -28,7 +28,7 @@ def sendText(text, senderID):
 
 
 def sendInteractiveButton(data, body_text, senderID):
-    url = os.getenv("URL")+"/sendInteractiveButtonsMessage?whatsappNumber="+senderID
+    url = os.getenv("URL")+"/sendInteractiveButtonsMessage?whatsappNumber="+str(senderID)
     headers = {"content-type": "text/json",
                "Authorization": os.getenv("API")
                }
@@ -44,7 +44,7 @@ def sendInteractiveButton(data, body_text, senderID):
 
 def sendMedia(image_name, senderID):
 
-    url = "https://live-server-101955.wati.io/api/v1/sendSessionFile/"+senderID
+    url = "https://live-server-101955.wati.io/api/v1/sendSessionFile/"+str(senderID)
 
     headers = {
 

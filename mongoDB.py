@@ -2,14 +2,28 @@ import pymongo
 import numpy as np
 from bson import ObjectId
 
+from dotenv import dotenv_values
+import os 
+config = dotenv_values(".env")
 
-def create_record(phone, name, image_url):
+# MONGO_URI = os.getenv("MONGO_URI")
+
+MONGO_URI = config["MONGO_URI"]
+
+CONNECTION_STRING = MONGO_URI
+
+client = pymongo.MongoClient(CONNECTION_STRING)
+db = client.get_database('Krishi_Clinic')
+db2 = client.get_database('content')
+
+
+def create_record(phoneNumber, senderName, image_url):
     try:
         client = pymongo.MongoClient('mongodb+srv://komal:WfdIIfi8D23iSEz0@smartu.jfrtswu.mongodb.net/')
         db = client["Krishi_Clinic"]
         collection = db["kc_upload"]
 
-        user_data = {"userID": phone, "name": name, "sent_image":""}
+        user_data = {"phoneNumber": phoneNumber, "senderName": senderName, "sent_image":""}
         updated_status = {"$push": {"image_url": image_url, "stored_image": image_url}}
 
         result = collection.update_one(user_data, updated_status, upsert=True)
@@ -32,7 +46,7 @@ def find_user(senderID):
         db = client["Krishi_Clinic"]
         collection = db["kc_upload"]
 
-        query = {"userID": senderID}
+        query = {"phoneNumber": senderID}
 
         print("query ", collection.find_one(query))
         return collection.find_one(query)
@@ -40,12 +54,12 @@ def find_user(senderID):
     except Exception as e:
         print("find_user error", e)
 
-def retrieve_field(userID, field_name):
+def retrieve_field(phoneNumber, field_name):
     try:
         client = pymongo.MongoClient('mongodb+srv://komal:WfdIIfi8D23iSEz0@smartu.jfrtswu.mongodb.net/')
         db = client["Krishi_Clinic"]
         collection = db["kc_upload"]
-        doc = collection.find_one({'userID': userID})
+        doc = collection.find_one({'phoneNumber': phoneNumber})
 
         if doc:
             field = doc.get(field_name)
@@ -58,12 +72,12 @@ def retrieve_field(userID, field_name):
     except Exception as e:
         print("find  error", e)
         
-def update_image_url(userID,image_field, image_url):
+def update_image_url(phoneNumber,image_field, image_url):
     client = pymongo.MongoClient('mongodb+srv://komal:WfdIIfi8D23iSEz0@smartu.jfrtswu.mongodb.net/')
     db = client["Krishi_Clinic"]
     collection = db["kc_upload"]
 
-    user_data = {"userID": userID}
+    user_data = {"phoneNumber": phoneNumber}
     chat_log = {
         "$push": {image_field: 
                   {"$each":[image_url], "$position": 0}
@@ -73,12 +87,12 @@ def update_image_url(userID,image_field, image_url):
     result = collection.update_one(user_data, chat_log, upsert=True)
     print("update_image_field ", result)
 
-def update_cloudinary_images(userID,image_field, image_url):
+def update_cloudinary_images(phoneNumber,image_field, image_url):
     client = pymongo.MongoClient('mongodb+srv://komal:WfdIIfi8D23iSEz0@smartu.jfrtswu.mongodb.net/')
     db = client["Krishi_Clinic"]
     collection = db["kc_upload"]
 
-    user_data = {"userID": userID}
+    user_data = {"phoneNumber": phoneNumber}
     chat_log = {
         "$push": {image_field: 
                   {"$each":[image_url], "$position": 0}
@@ -88,13 +102,13 @@ def update_cloudinary_images(userID,image_field, image_url):
     result = collection.update_one(user_data, chat_log, upsert=True)
     print("update_image_field ", result)
 
-def update_field_set(phone, field_name, field_value):
+def update_field_set(phoneNumber, field_name, field_value):
     try:
         client = pymongo.MongoClient('mongodb+srv://komal:WfdIIfi8D23iSEz0@smartu.jfrtswu.mongodb.net/')
         db = client["Krishi_Clinic"]
         collection = db["kc_upload"]
 
-        user_data = {"userID": phone}
+        user_data = {"phoneNumber": phoneNumber}
         updated_status = {"$set": {field_name: field_value}}
 
         collection.update_one(user_data, updated_status, upsert=True)
@@ -139,14 +153,14 @@ def update_field_set(phone, field_name, field_value):
 # db2 = client.get_database('content')
 
 
-# def create_record(phone, name, language, cropName, audio_urls, chatLog, image_url):
+# def create_record(phoneNumber, senderName, language, cropName, audio_urls, chatLog, image_url):
 #     try:
 #         client = pymongo.MongoClient("mongodb+srv://komal:WfdIIfi8D23iSEz0@smartu.jfrtswu.mongodb.net/")
 #         db = client["flask_mongodb_atlas"]
 #         collection = db["user"]
 
 
-#         user_data = {"phoneNumber": phone, "senderName": name, "language":language,"cropName": cropName, "already":0, "next":0 , "acres" "user_tag": "KC", "sent_image":""}
+#         user_data = {"phoneNumber": phoneNumber, "senderName": senderName, "language":language,"cropName": cropName, "already":0, "next":0 , "acres" "user_tag": "KC", "sent_image":""}
 #         updated_status = {"$push": {"audio_urls": audio_urls, "chatLog": chatLog, "image_url": image_url, "stored_image": image_url}}
 
 #         result = collection.update_one(user_data, updated_status, upsert=True)
@@ -211,13 +225,13 @@ def update_field_set(phone, field_name, field_value):
 
 
 
-# def update_field_set(phone, field_name, field_value):
+# def update_field_set(phoneNumber, field_name, field_value):
 #     try:
 #         client = pymongo.MongoClient("mongodb+srv://komal:WfdIIfi8D23iSEz0@smartu.jfrtswu.mongodb.net/")
 #         db = client["flask_mongodb_atlas"]
 #         collection = db["user"]
 
-#         user_data = {"user_id": phone}
+#         user_data = {"user_id": phoneNumber}
 #         updated_status = {"$set": {field_name: field_value}}
 
 #         collection.update_one(user_data, updated_status, upsert=True)
