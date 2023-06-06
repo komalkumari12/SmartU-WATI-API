@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def saveImageToCloudinary(image_url,senderID):
-    print('image download calling')
+    
+    name = image_url.split('/')[-1][:-4]
     payload = ""
     headers = {
     'Authorization': os.getenv('API'),
@@ -22,7 +23,7 @@ def saveImageToCloudinary(image_url,senderID):
 
     response = cloudinary.uploader.upload(
     "sample.jpg",
-    public_id="my_uploaded_image")
+    public_id=name)
     
     print(response)
     

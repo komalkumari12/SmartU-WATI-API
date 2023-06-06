@@ -4,8 +4,6 @@ from cropList import cropListEnglish
 from urllib.parse import urlparse
 from  downloadAudio import downloadAudio
 from MoreQuestions import moreQuestionsEnglish
-from downloadImage import downloadImage
-from SendImageFile import sendImageFile
 from kcImage import execute,handleImageConfirmation
 
 def EnglishContent0(nextQuestion):
@@ -121,18 +119,5 @@ def EnglishContent2(data, textByUser):
 
     elif(data['type']=='image'):
         print('image is sent by Kc_upload , Now in EnglishContent2 function')
-
-        # print('In English Content File')
-        # print('Kc_upload Sent an Image')
-
-        # imgUrl = downloadImage(data['data'])
-        # return sendImageFile(imgUrl)    
-        # new_image_url = data.get('data')
-        # mdb.update_image_url(senderID, "image_url", new_image_url)
-        # mdb.update_image_url(senderID, "stored_image", new_image_url)
-        # image_urls = mdb.retrieve_field(senderID, "image_url")
-        # mdb.update_field_set(senderID, "sent_image", image_urls[0])
-        # cloudinary_url = downloadImage(new_image_url)
-               
-        # execute(new_image_url)
+        
     return "ok"             

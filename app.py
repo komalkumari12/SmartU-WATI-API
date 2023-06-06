@@ -5,10 +5,6 @@ from flask import Flask,request
 from flask import jsonify
 # from flask_cors import CORS, cross_origin
 from SessionMessage import sendSessionMessage
-from SendImageFile import sendImageFile
-from sendInteractiveButton import sendInteractiveButtonMessage
-# import mdb
-from storeImage import store_image
 from downloadImage import downloadImage
 from HindiContent import HindiContent0
 from HindiContent import HindiContent1
@@ -67,7 +63,8 @@ def functionCall():
         print(image)
         
         new_image_url = data.get('data')
-        execute(new_image_url)
+        # execute(new_image_url)
+        execute(data)
         # EnglishContent2(data, image)
 
     if(data['type'] == 'audio'):
