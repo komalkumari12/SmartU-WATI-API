@@ -19,7 +19,7 @@ image_urls_arr = []
 def handleImageConfirmation(data):
     if data.get("text") == "Ok":
         """
-        Check if the last message is "KC Upload Invoked" and received text is ✔
+        Check if the last message is "KC Upload Invoked" and received text is Ok
         If true, then send the first image from the image_url array, update the sent_image field
         
         """
@@ -30,7 +30,7 @@ def handleImageConfirmation(data):
         # print("user_exist", user_exist)
         # No image sent by the user
         if(stored_image == "No document found."):
-            data = [{"text": "✔"}]
+            data = [{"text": "Ok"}]
             media_response = wa.sendInteractiveButton(data, "No image received. Click on the button below after sending images.", 918355882259)
 
         else:
@@ -72,28 +72,27 @@ def handleImageConfirmation(data):
         mdb.update_cloudinary_images(918355882259,'cloudinary_images',public_link)
         # at.upload(user_id[0],public_link)
         
-        
+        print("destiny",len(image_urls),sent_image)
+
         #* Removed image_url from array
         index_sent_image = image_urls.index(sent_image)
         # print("index_sent_image", index_sent_image)
         image_urls.pop(index_sent_image)
         
         url_field_update = mdb.update_field_set(918355882259, "image_url", image_urls) #Overwriting the image_url array by popping the sent_image_image url
-
+        print("destiny",len(image_urls),index_sent_image)
         if(url_field_update == 200):
-            # print("After update ", image_urls)
-
-            # if(len(image_urls)==2):
-            #     wa.sendMedia(image_urls[index_sent_image], 918355882259)
+            
+            if(len(image_urls)>2):
+                wa.sendMedia(image_urls[index_sent_image+1], 918355882259)
                 
-            #     data = [{"text": "होय"}, {"text": "सुधारित फोटो पाठवा"}]
-            #     media_response = wa.sendInteractiveButton(data, "Upload?", 918355882259)
-            #     # print("media_response", media_response)
+                data = [{"text": "होय"}, {"text": "सुधारित फोटो पाठवा"}]
+                media_response = wa.sendInteractiveButton(data, "Upload?", 918355882259)
+                # print("media_response", media_response)
                 
-            #     if media_response == 200:
-            #         mdb.update_field_set(918355882259, "sent_image", image_urls[index_sent_image])
-                
-            if(len(image_urls)>=2):
+                if media_response == 200:
+                    mdb.update_field_set(918355882259, "sent_image", image_urls[index_sent_image+1])
+            elif(len(image_urls)==2):
                 wa.sendMedia(image_urls[index_sent_image], 918355882259)
                 
                 data = [{"text": "होय"}, {"text": "सुधारित फोटो पाठवा"}]
@@ -102,7 +101,7 @@ def handleImageConfirmation(data):
                 
                 if media_response == 200:
                     mdb.update_field_set(918355882259, "sent_image", image_urls[index_sent_image])
-                    
+            
             elif (len(image_urls) == 1):
                 wa.sendMedia(image_urls[0], 918355882259)
                 data = [{"text": "होय"}, {"text": "सुधारित फोटो पाठवा"}]
@@ -129,7 +128,7 @@ def handleImageConfirmation(data):
         stored_image = mdb.retrieve_field(918355882259, "stored_image")
         sent_image = mdb.retrieve_field(918355882259, "sent_image")
 
-        print("1. image_urls ", image_urls, "stored_image", stored_image, "sent_image", sent_image)
+        # print("1. image_urls ", image_urls, "stored_image", stored_image, "sent_image", sent_image)
         try:
                 
             index_sent_image = image_urls.index(sent_image)
@@ -141,15 +140,15 @@ def handleImageConfirmation(data):
             image_urls.pop(index_sent_image)
             stored_image.pop(index_stored_image)
 
-            print("2. After removing image_urls ", len(image_urls))
-            print("2. After removing stored_image ", len(stored_image))
+            # print("2. After removing image_urls ", len(image_urls))
+            # print("2. After removing stored_image ", len(stored_image))
 
             mdb.update_field_set(918355882259, "image_url", image_urls)
             mdb.update_field_set(918355882259, "stored_image", stored_image)
 
             # mdb.update_field_set(918355882259, "sent_image", image_urls.len())
 
-            data = [{"text": "✔"}]
+            data = [{"text": "Ok"}]
             media_response = wa.sendInteractiveButton(data, "जुना फोटो हटवून नवीन अपलोड करा", 918355882259)
             
         except Exception as e:
@@ -177,9 +176,9 @@ def execute(data):
         new_image_url = data.get('data')
 
 # * MongoDB Operations
-        print(data)
+        # print(data)
         existing_record = mdb.find_user(918355882259)
-        print(existing_record)
+        # print(existing_record)
 
         """
         If existing_record is True, then update the image_url, stored_image and sent_image (0th index of image_url)
@@ -193,7 +192,7 @@ def execute(data):
             image_urls = mdb.retrieve_field(918355882259, "image_url")
             stored_image = mdb.retrieve_field(918355882259, "stored_image")
             mdb.update_field_set(918355882259, "sent_image", image_urls[0]) 
-            print("image testing ",image_urls)
+            # print("image testing ",image_urls)
         else:
             print("2. does not have an existing_record ", existing_record)
             mdb.create_record(918355882259, senderName, new_image_url)

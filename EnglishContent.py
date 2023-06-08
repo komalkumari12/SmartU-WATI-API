@@ -52,6 +52,9 @@ def EnglishContent2(data, textByUser):
                         print('Store value of Crop in a new field')
                         print('Text by Kc_upload is :  ' + textByUser)
                         mdb.db.kc_upload.update_one({'phoneNumber': 918355882259 },{'$set': {'Other': textByUser},"$inc":{"already":1,"next":1}},upsert=True)
+                    # if(alreadyAsked == 1):
+                    #     print('now add the acres as a seperate key value')
+                    #     mdb.db.kc_upload.update_one({'phoneNumber': 918355882259 },{'$set': {'Acres': textByUser},"$inc":{"already":1,"next":1}},upsert=True)
                     else:
                         mdb.db.kc_upload.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
                         print('Answer sent by Kc_upload : ' + textByUser)
@@ -96,10 +99,10 @@ def EnglishContent2(data, textByUser):
                         sendSessionMessage('Number of Acres should be in Valid Range')
                 else : 
                     sendSessionMessage('Incorrect Input.... Input a Number')         
-            else:
-                print('Input can be a string or Audio')
-                mdb.db.kc_upload.update_one({"phoneNumber":918355882259},{"$inc":{"already":1,"next":1},"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
-                print('Answer sent by Kc_upload : ' + textByUser)
+            # else:
+                # print('Input can be a string or Audio')
+                # mdb.db.kc_upload.update_one({"phoneNumber":918355882259},{"$push":{"cropQuestions":{"Question":question,"Answer":textByUser}}},upsert=True)
+                # print('Answer sent by Kc_upload : ' + textByUser)
 
     elif(dataSent == 'audio'):
         print('Media is Audio')

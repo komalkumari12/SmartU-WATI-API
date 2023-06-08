@@ -48,7 +48,6 @@ def find_user(senderID):
 
         query = {"phoneNumber": senderID}
 
-        print("query ", collection.find_one(query))
         return collection.find_one(query)
 
     except Exception as e:
@@ -71,7 +70,21 @@ def retrieve_field(phoneNumber, field_name):
             
     except Exception as e:
         print("find  error", e)
-        
+
+def remove_first_image(phoneNumber,image_field):
+    client = pymongo.MongoClient('mongodb+srv://komal:WfdIIfi8D23iSEz0@smartu.jfrtswu.mongodb.net/')
+    db = client["Krishi_Clinic"]
+    collection = db["kc_upload"]
+
+    user_data = {"phoneNumber": phoneNumber}
+    
+    chat_log = {
+        "$pop": {image_field: -1}
+        }
+                  
+    result = collection.update_one(user_data, chat_log, upsert=True)
+    print("update_image_field ", result)
+
 def update_image_url(phoneNumber,image_field, image_url):
     client = pymongo.MongoClient('mongodb+srv://komal:WfdIIfi8D23iSEz0@smartu.jfrtswu.mongodb.net/')
     db = client["Krishi_Clinic"]
@@ -79,8 +92,7 @@ def update_image_url(phoneNumber,image_field, image_url):
 
     user_data = {"phoneNumber": phoneNumber}
     chat_log = {
-        "$push": {image_field: 
-                  {"$each":[image_url], "$position": 0}
+        "$push": {image_field: image_url
                 }
             }
                   
@@ -94,8 +106,7 @@ def update_cloudinary_images(phoneNumber,image_field, image_url):
 
     user_data = {"phoneNumber": phoneNumber}
     chat_log = {
-        "$push": {image_field: 
-                  {"$each":[image_url], "$position": 0}
+        "$push": {image_field: image_url
                 }
             }
                   

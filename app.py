@@ -43,7 +43,6 @@ def DefaultRoute():
 @app.route('/sendMessage',methods=["GET", "POST"])
 def functionCall():
     data = request.json
-    print(data)
     print(data['type'])
     textByUser = data['text']
     phoneNumber = data['waId']
@@ -55,19 +54,22 @@ def functionCall():
 
         language = languagePreference()
         print(language)
+    
+    elif(data['type'] == 'video' or data['type'] == 'document'):
+        print('User sent a video or a document')
+        sendSessionMessage('Only send images')
 
-    if(data['type'] == 'image'):
+    elif(data['type'] == 'image'):
         print('Kc_upload sent a Image')
 
         image = data['data']
-        print(image)
         
         new_image_url = data.get('data')
         # execute(new_image_url)
         execute(data)
         # EnglishContent2(data, image)
 
-    if(data['type'] == 'audio'):
+    elif(data['type'] == 'audio'):
         print('Kc_upload input is a Audio')
 
         audio = data['data']
@@ -92,7 +94,7 @@ def functionCall():
             print("Kc_upload input is : " + user_response)
 
             if user_response != 'Other' and user_response != 'अन्य' and user_response != 'इतर':
-                print('Kc_upload Input is a Crop')
+                print('User Input is a Crop')
                 mdb.db.kc_upload.update_one({"phoneNumber": 918355882259}, {"$set": {"already": 1, "next": 2, "Crop Name": user_response}}, upsert=True)
 
                 nextQuestion = mdb.db['kc_upload'].find_one({'phoneNumber':918355882259})['next']
@@ -113,7 +115,7 @@ def functionCall():
                     MarathiContent0(nextQuestion) 
         
             elif(user_response == 'Other' or user_response == 'अन्य' or user_response == 'इतर'):
-                print('Kc_upload selected Other Option')
+                print('User selected Other Option')
    
                 mdb.db.kc_upload.update_one({"phoneNumber": 918355882259}, {"$set": {"already": 0, "next": 1, "Crop Name": user_response}}, upsert=True)
                 nextQuestion = mdb.db['kc_upload'].find_one({'phoneNumber':918355882259})['next']
@@ -132,14 +134,18 @@ def functionCall():
                     MarathiContent0(nextQuestion)
 
         else:
+
             if textByUser == 'Yes' or textByUser == 'हाँ' or textByUser == 'erreer' or textByUser == 'No' or textByUser == 'नहीं' or textByUser == 'नाही':
   
                 language = mdb.db.kc_upload.find_one({"phoneNumber": 918355882259})["language"]
                 print(language)
+                nextQuestion = mdb.db.kc_upload.find_one({'phoneNumber':918355882259})['next']
+                print(nextQuestion)
+
                 # More Queries for USers to input
                 print('Kc_upload Response for more questions is : ' + textByUser)
                 print('Entered here in yes no block')
-                if(textByUser == 'Yes' or  textByUser == 'हाँ' or textByUser == 'होय'):
+                if(nextQuestion==3 and textByUser == 'Yes' or  textByUser == 'हाँ' or textByUser == 'होय'):
 
                     print('Kc_upload selected a yes')
                     language = mdb.db.kc_upload.find_one({"phoneNumber": 918355882259})["language"]
@@ -153,7 +159,7 @@ def functionCall():
                     elif(language == 'मराठी'):
                         sendSessionMessage('तुमच्या सांत्र्याच्या पिकावरील रोग पकांवा समस्ाांबद्दल मापहती द्या (तुमच्या कीबोडडच्या मदतीने मराठी, पहांदी पकांवा इांक्लिशमध्ये टाईि करून िाठवा, अथवा कीबोडड वरील माइकचा ियाडय पनवडून एक पमपनटािेक्षा कमी वेळात आवाज रेकॉडड करून िाठवा)')
 
-                if(textByUser == 'No' or textByUser == 'नहीं' or textByUser == 'नाही'):
+                elif(nextQuestion==3 and textByUser == 'No' or textByUser == 'नहीं' or textByUser == 'नाही'):
                     print('Kc_upload selected a yes')
 
                     language = mdb.db.kc_upload.find_one({"phoneNumber": 918355882259})["language"]
@@ -167,12 +173,12 @@ def functionCall():
                         sendSessionMessage('आम्हाला तुमच्या सांत्र्यामधील समस्ा/ रोग पवषयक मापहती पमळाली आहे, कृिया त्या सांबांपधत सांत्र्याचे दोन-तीन फोटो काढून िाठवा.')
                 
                     
-            if (textByUser == 'English' or textByUser == 'हिंदी' or textByUser == 'मराठी'):
+            elif (textByUser == 'English' or textByUser == 'हिंदी' or textByUser == 'मराठी'):
                 print('Store language in DB')
                 print('language input by kc_upload  : '  + textByUser)
                 # Store Language in DB
                 # image_url = {""}
-                mdb.db.kc_upload.insert_one({"phoneNumber": 918355882259,"senderName": senderName,"language": textByUser,"user_tag":"KC", "sent_image": "", "image_url": [], "stored_image": [] ,"cloudinary_images": [], "cropQuestions" : []})
+                mdb.db.kc_upload.insert_one({"phoneNumber": 918355882259,"senderName": senderName,"language": textByUser,"userflow":"KC", "sent_image": "", "image_url": [], "stored_image": [] ,"cloudinary_images": [], "cropQuestions" : []})
                 language = mdb.db.kc_upload.find_one({"phoneNumber": 918355882259})["language"]
                 # mdb.create_record(918355882259,senderName,textByUser,"","",textByUser,"")
                 language = textByUser
